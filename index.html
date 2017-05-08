@@ -103,13 +103,24 @@
     },
     getInitialState() {
       return {
-        notes: [
-          {id: 0, note: 'Call Bob'},
-          {id: 1, note: 'Email Sarah'},
-          {id: 2, note: 'Eat lunch'},
-          {id: 3, note: 'Finish application'}
-        ]
+        notes: []
       }
+    },
+    // будет создавать уникальній айдишник
+    nextId() {
+      this.uniqueId = this.uniqueId || 0
+      return this.uniqueId++
+    },
+    // ... spread operator будет добавлять коллекцию всех заметок
+    add(text) {
+      var notes = [
+        ...this.state.notes,
+        {
+          id: this.nextId(),
+          note: text
+        }
+      ]
+      this.setState({notes})
     },
     // ... spread operator
     // проверяем по айди если нет такого то создаем новый обьект в который дописываем новый текст
@@ -147,6 +158,7 @@
       return (
         <div className = 'board'>
           {this.state.notes.map(this.eachNote)}
+          <button onClick = {() => this.add('New note')}>+</button>
         </div>)
     }
   })
