@@ -1,0 +1,18 @@
+Component life cicle
+
+Mounting:
+
+-getInitialState
+-componentWillMount
+-render
+-componentDidMount
+
+Updating:
+
+-componentWillRecieveProps
+-shouldComponentUpdate
+-componentWillUpdate
+-render
+-componentDidUpdate
+
+-componentWillUnmount

@@ -18,6 +18,8 @@
     getInitialState() {
       return {editing: false}
     },
+    // функция нужна для того, чтоб создавать записи в рандомном месте экрана
+    // Стандартная функция, которая вызывается сразу перед методом render
     componentWillMount() {
       this.style = {
         right: this.randomBetween(0, window.innerWidth - 150, 'px'),
