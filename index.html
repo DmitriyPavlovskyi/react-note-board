@@ -7,6 +7,10 @@
   <script src = "https://fb.me/react-15.2.1.js"></script>
   <script src = "https://fb.me/react-dom-15.2.1.js"></script>
   <script src = "https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+  <!-- Отличтое API , если нам нужно подгрузить какие-то данные -->
+  <script src = "https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.js"></script>
+  <!-- Позволяет оборачивать компоненты и делать их перетаскиваемыми -->
+  <script src = "https://npmcdn.com/react-draggable"></script>
   <link rel="stylesheet" href="style.css">
   <title>Note Board</title>
 </head>
@@ -25,6 +29,17 @@
         right: this.randomBetween(0, window.innerWidth - 150, 'px'),
         top: this.randomBetween(0, window.innerHeight - 150, 'px')
       }
+    },
+    componentDidUpdate() {
+      if (this.state.editing) {
+        this.refs.newText.focus()
+        this.refs.newText.select()
+      }
+    },
+    // Нужна для проверки нужно ли вызывать rerender, если изменений не было - рендер не вызовется повторно
+    // Когда мы в режиме редактирования заметки, если мы ничего не изменили и нажали сохранить - ререндер не произойдет
+    shouldComponentUpdate(nextProps, nextState) {
+      return this.props.children !== nextProps.children || this.state !== nextState
     },
     // x -> x-axis
     // y -> y-axis
@@ -68,7 +83,10 @@
       return (
         <div className = "note"
             style = {this.style}>
-          <textarea ref = "newText"></textarea>
+          <textarea ref = "newText"
+                    defaultValue = {this.props.children}>
+
+          </textarea>
           <button onClick = {this.save}>Save</button>
         </div>
       )
@@ -87,17 +105,29 @@
       )
     },
     // Таким образом мы задаем встроенному методу логику отрисовки нужной формы
+    // ReactDraggable позволяет "таскать" элементы обернутые в него
     render() {
-      if (this.state.editing) {
-        return  this.renderForm()
-      } else {
-        return this.renderDisplay()
-      }
+      // if (this.state.editing) {
+      //   return  (
+      //     <ReactDraggable>
+      //       {this.renderForm()}
+      //     </ReactDraggable>
+      //   )
+      // } else {
+      //   return (
+      //     <ReactDraggable>
+      //       {this.renderDisplay()}
+      //     </ReactDraggable>
+      //   )
+      // }
       // Тоже самое с тернарный выражением в одну строку
-      // return (this.state.editing) ? this.renderForm()
-      //                             : this.renderDisplay()
+      return ( <ReactDraggable>
+               {(this.state.editing) ? this.renderForm()
+                                  : this.renderDisplay()}
+               </ReactDraggable>
+        )
     }
-  })
+})
 
   var Board = React.createClass({
     // Фича для отслеживания типа который мы передаем в props ,
@@ -121,6 +151,20 @@
       return {
         notes: []
       }
+    },
+    componentWillMount() {
+        if (this.props.count) {
+            var url = `http://baconipsum.com/api/?type=all-meat&sentences=${this.props.count}`
+            fetch(url)
+                  .then(results => results.json())
+                  .then(array => array[0])
+                  .then(text => text.split('. '))
+                  .then(array => array.forEach(
+                        sentence => this.add(sentence)))
+                  .catch(function(err) {
+                    console.log("Didn't connect to the API", err)
+                  })
+        }
     },
     // будет создавать уникальный айдишник
     nextId() {
