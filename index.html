@@ -18,6 +18,18 @@
     getInitialState() {
       return {editing: false}
     },
+    componentWillMount() {
+      this.style = {
+        right: this.randomBetween(0, window.innerWidth - 150, 'px'),
+        top: this.randomBetween(0, window.innerHeight - 150, 'px')
+      }
+    },
+    // x -> x-axis
+    // y -> y-axis
+    // s -> units
+    randomBetween(x, y, s) {
+      return (x + Math.ceil(Math.random() * (y-x))) + s
+    },
     edit() {
       // функция изменения состояния компонента
       this.setState({editing: true})
@@ -52,7 +64,8 @@
     renderForm() {
       // создаем ссылку по которой будем вытягивать данные ref
       return (
-        <div className = "note">
+        <div className = "note"
+            style = {this.style}>
           <textarea ref = "newText"></textarea>
           <button onClick = {this.save}>Save</button>
         </div>
@@ -61,7 +74,8 @@
     renderDisplay() {
       // С помощью children мы можем получить доступ к тому что лежит внутри элемента
       return (
-        <div className = "note">
+        <div className = "note"
+            style = {this.style}>
           <p>{this.props.children}</p>
           <span>
             <button onClick = {this.edit}>EDIT</button>
@@ -106,7 +120,7 @@
         notes: []
       }
     },
-    // будет создавать уникальній айдишник
+    // будет создавать уникальный айдишник
     nextId() {
       this.uniqueId = this.uniqueId || 0
       return this.uniqueId++
@@ -142,6 +156,7 @@
       this.setState({notes})
     },
     // отдаем заметку с ее айдишником и текстом
+    // key нужен для того, чтобы не было ошибки в консоле, поскольку каждый ребенок в массиве должен иметь свой уникальный ключ!
     eachNote(note) {
       return (<Note key = {note.id}
                     id = {note.id}
