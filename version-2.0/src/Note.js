@@ -3,7 +3,6 @@ import './App.css';
 import Draggable from 'react-draggable';
 
 var Note = React.createClass({
-  // Начальная инициализация состояния компонента
   getInitialState() {
     return { editing: false };
   },
@@ -26,7 +25,6 @@ var Note = React.createClass({
     return (x + Math.ceil(Math.random() * (y-x))) + s;
   },
   edit() {
-    // функция изменения состояния компонента
     this.setState({ editing: true });
     console.log('edit');
   },
