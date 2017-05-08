@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src = "https://fb.me/react-15.2.1.js"></script>
+  <script src = "https://fb.me/react-dom-15.2.1.js"></script>
+  <script src = "https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>Note Board</title>
+</head>
+<body>
+  <div id="react-container"></div>
+<script type = "text/babel">
+  var Note = React.createClass({
+    // Начальная инициализация состояния компонента
+    getInitialState() {
+      return {editing: false}
+    },
+    edit() {
+      // функция изменения состояния компонента
+      this.setState({editing: true})
+      console.log('edit')
+    },
+    save() {
+      // В этой переменной будем хранить значение textarea
+      // В refs хранятся ссылки
+      // var textValue = this.refs.newText.value;
+      //
+      // this.setState({editing: false})
+
+      this.props.onChange(this.refs.newText.value, this.props.id)
+      this.setState({editing: false})
+    },
+    remove() {
+      console.log('remove')
+      this.props.onRemove(this.props.id)
+    },
+    // Улучшаем рендер, создадим несколько методов рендера в зависимости от нужного контента
+    // render() {
+      // return (
+      //   <div className = "note">
+      //     <p>{this.props.children}</p>
+      //     <span>
+      //       <button onClick = {this.edit}>EDIT</button>
+      //       <button onClick = {this.remove}>X</button>
+      //     </span>
+      //   </div>
+      // )
+    // }
+    renderForm() {
+      // создаем ссылку по которой будем вытягивать данные ref
+      return (
+        <div className = "note">
+          <textarea ref = "newText"></textarea>
+          <button onClick = {this.save}>Save</button>
+        </div>
+      )
+    },
+    renderDisplay() {
+      // С помощью children мы можем получить доступ к тому что лежит внутри элемента
+      return (
+        <div className = "note">
+          <p>{this.props.children}</p>
+          <span>
+            <button onClick = {this.edit}>EDIT</button>
+            <button onClick = {this.remove}>X</button>
+          </span>
+        </div>
+      )
+    },
+    // Таким образом мы задаем встроенному методу логику отрисовки нужной формы
+    render() {
+      if (this.state.editing) {
+        return  this.renderForm()
+      } else {
+        return this.renderDisplay()
+      }
+      // Тоже самое с тернарный выражением в одну строку
+      // return (this.state.editing) ? this.renderForm()
+      //                             : this.renderDisplay()
+    }
+  })
+
+  var Board = React.createClass({
+    // Фича для отслеживания типа который мы передаем в props ,
+    // с помощью нее можно отлавливать ошибки при не правильном формате данных
+    // Отслеживать тип получаемых данных считается хорошей практикой,
+    // поскольку мы убеждаемся, что приложение будет работать правильно
+    propTypes: {
+      count: function(props, propName) {
+        // Отслеживаем тип полученых данных
+        if (typeof props[propName] !== 'number') {
+          return new Error('the count must be a number')
+        }
+
+        // отслеживаем максимальное число
+        if (props[propName] > 100) {
+          return new Error('Creating ' + props[propName] + ' notes is ridiculous')
+        }
+      }
+    },
+    getInitialState() {
+      return {
+        notes: [
+          {id: 0, note: 'Call Bob'},
+          {id: 1, note: 'Email Sarah'},
+          {id: 2, note: 'Eat lunch'},
+          {id: 3, note: 'Finish application'}
+        ]
+      }
+    },
+    // ... spread operator
+    // проверяем по айди если нет такого то создаем новый обьект в который дописываем новый текст
+    // this.setState - обновляем наши заметки, записываем последние изменения
+    update(newText, id) {
+      var notes = this.state.notes.map(
+        note => (note.id !== id) ?
+          note :
+          {
+            ...note,
+            note: newText
+          }
+      )
+      this.setState({notes})
+    },
+    // Удаление будет проходится по заметкам и создавать новый массив с только нужными айдишниками
+    remove(id) {
+      var notes =   this.state.notes.filter(note => note.id !== id)
+      this.setState({notes})
+    },
+    // отдаем заметку с ее айдишником и текстом
+    eachNote(note) {
+      return (<Note key = {note.id}
+                    id = {note.id}
+                    onChange = {this.update}
+                    onRemove = {this.remove}>
+                    {note.note}
+              </Note>)
+    },
+    // было так
+    // {this.state.notes.map((note, i) => {
+    //   return <Note key = {i}>{note}</Note>
+    // })}
+    render() {
+      return (
+        <div className = 'board'>
+          {this.state.notes.map(this.eachNote)}
+        </div>)
+    }
+  })
+
+  ReactDOM.render(<Board count = {10}></Board>, document.getElementById('react-container'))
+</script>
+
+</body>
+</html>
